@@ -1,4 +1,4 @@
-describe('Smoke Test - Disponibilité du produit', () => {
+describe('Smoke Test - Champ de disponibilité du produit', () => {
     let productId;
   
     before(() => {

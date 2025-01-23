@@ -1,6 +1,6 @@
 import { login } from '../utils/auth';
 
-describe('API Tests protégés', () => {
+describe('API Test : requête de la liste des produits du panier', () => {
   let authToken;
 
   before(() => {

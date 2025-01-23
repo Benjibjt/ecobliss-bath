@@ -1,4 +1,4 @@
-describe('API Test: Accès non autorisé', () => {
+describe('API Test: Accès non autorisé au panier', () => {
     it('Devrait retourner une erreur 403 pour un utilisateur non connecté', () => {
       cy.request({
         method: 'GET',

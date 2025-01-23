@@ -12,67 +12,61 @@ describe('API Test: Ajouter un produit en rupture de stock', () => {
   });
 
   it('Devrait échouer si le produit est en rupture de stock', () => {
-    // Étape 1 : Récupérer un produit en rupture de stock (par exemple, produit avec id = 3)
+    // Étape 1 : Récupérer un produit en rupture de stock (id = 3)
     cy.request('GET', 'http://localhost:8081/products/3').then((response) => {
       const product = response.body;
 
-      // Afficher la réponse complète pour diagnostiquer
-      cy.log('Réponse complète du produit :', JSON.stringify(response.body));
+      // Log de la réponse complète pour débogage
+      cy.log('Réponse complète du produit :', JSON.stringify(product));
 
       // Vérifier que le produit existe
       expect(product).to.exist;
-      // Vérifier que le stock est inférieur ou égal à 0 pour indiquer une rupture de stock
+
+      // Vérifier que le stock est nul ou négatif
       cy.log('Stock disponible du produit :', product.availableStock);
-      expect(product.availableStock).to.be.at.most(0, 'Produit en rupture de stock'); // Acceptation des stocks négatifs et zéro
+      expect(product.availableStock).to.be.at.most(0, 'Produit en rupture de stock');
 
       // Étape 2 : Essayer d'ajouter le produit au panier
       cy.request({
         method: 'PUT',
         url: 'http://localhost:8081/orders/add',
-        headers: { Authorization: `Bearer ${authToken}` },
-        body: {
-          orderLines: [{ productId: product.id, quantity: 1 }],
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
         },
-        failOnStatusCode: false, // Capturer les erreurs sans faire échouer le test
+        body: {
+          product: product.id, // Utilisation de l'ID du produit
+          quantity: 1, // Quantité demandée
+        },
+        failOnStatusCode: false, // Permettre de capturer les erreurs
       }).then((addResponse) => {
         cy.log('Réponse complète de l\'ajout au panier :', JSON.stringify(addResponse.body));
 
-        // Inspecter l'erreur dans la réponse
-        if (addResponse.body.error) {
-          cy.log('Erreur détectée dans la réponse:', JSON.stringify(addResponse.body.error));
+        // Vérifier le statut HTTP
+        expect(addResponse.status).to.eq(400, 'Statut attendu : 400');
+
+        // Vérifier l'erreur retournée par l'API
+        const error = addResponse.body.error;
+        expect(error).to.exist;
+
+        // Vérifier si l'ajout est autorisé malgré un stock insuffisant
+        expect(addResponse.status).to.eq(200, 'Statut attendu : 200 (précommande possible)');
+        if (addResponse.body.warning) {
+        expect(addResponse.body.warning).to.include('Product is out of stock, added as a backorder');
         }
 
-        cy.log(`Statut réponse : ${addResponse.status}`);
 
-        if (addResponse.status === 400) {
-          // Vérifier si l'erreur est sous forme de chaîne
-          if (typeof addResponse.body.error === 'string') {
-            cy.log('Erreur sous forme de chaîne :', addResponse.body.error);
-            expect(addResponse.body.error).to.include('Out of stock');
-          } 
-          // Vérifier si l'erreur est un objet
-          else if (typeof addResponse.body.error === 'object') {
-            cy.log('Erreur sous forme d\'objet :', JSON.stringify(addResponse.body.error));
-            if (addResponse.body.error.message) {
-              cy.log('Message d\'erreur dans l\'objet :', addResponse.body.error.message);
-              expect(addResponse.body.error.message).to.include('Out of stock');
-            } else {
-              cy.log('Erreur structure inattendue dans l\'objet error.');
-              expect(addResponse.body.error).to.be.an('object'); // Vérification de l'objet mais sans forcer l'échec
-            }
-          } else {
-            cy.log('Erreur structure inattendue :', JSON.stringify(addResponse.body.error));
-            // Ne pas faire échouer systématiquement le test ici
-            expect(addResponse.body.error).to.be.null; // Attente alternative : erreur absente
+        if (typeof error === 'string') {
+          cy.log('Erreur sous forme de chaîne :', error);
+          expect(error).to.include('Out of stock');
+        } else if (typeof error === 'object') {
+          cy.log('Erreur sous forme d\'objet :', JSON.stringify(error));
+          if (error.product) {
+            expect(error.product).to.include('This value is not valid.');
           }
-        } else if (addResponse.status === 404) {
-          // Erreur produit non trouvé
-          cy.log('Erreur 404 : Produit non trouvé.');
-          expect(addResponse.body.error).to.include('Product not found');
         } else {
-          // Statut inattendu
-          cy.log('Réponse inattendue:', JSON.stringify(addResponse.body));
-          throw new Error(`Statut inattendu : ${addResponse.status}`);
+          cy.log('Erreur structure inattendue :', JSON.stringify(error));
+          throw new Error('Structure inattendue pour le champ error');
         }
       });
     });
@@ -84,29 +78,14 @@ describe('API Test: Ajouter un produit en rupture de stock', () => {
 
       expect(response.status).to.eq(401); // Vérifiez le statut
 
-      // Validation conditionnelle de la structure
-      if (response.body) {
-        cy.log('Corps de la réponse trouvé.');
-        if (response.body.error) {
-          expect(response.body.error).to.include('Invalid credentials'); // Vérifiez le message d'erreur
-        } else {
-          cy.log('Le champ "error" est manquant dans le body.');
-        }
+      // Vérification du message d'erreur dans le corps de la réponse
+      const body = response.body;
+      if (body && body.message) {
+        expect(body.message).to.include('Invalid credentials'); // Vérifier le message
       } else {
-        cy.log('Le body de la réponse est vide.');
+        cy.log('Le message d\'erreur est absent.');
       }
     });
   });
 });
-
-
-
-
-
-
-
-
-
-
-
 
