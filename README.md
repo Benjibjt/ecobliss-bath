@@ -1,15 +1,11 @@
 # Projet : Automatisez des tests pour une boutique en ligne
 Ce projet vise à automatiser les tests d'une boutique en ligne en utilisant Cypress. Il comprend des tests pour valider les fonctionnalités clés telles que la connexion, la gestion du panier, et l'accès sécurisé aux API.
 
-## Description
-Ce projet automatise les tests d'une boutique en ligne à l'aide de Cypress. Il valide les fonctionnalités essentielles telles que la gestion des utilisateurs, le panier et les API associées.
-
 ### Prérequis
 - Docker (assurez-vous qu'il est installé et configuré).
 - Node.js et npm.
 
 ## Installation du projet
-
 1. Clonez ou téléchargez le dépôt du projet.
 2. Assurez-vous que [Docker](https://www.docker.com/) est installé.
 3. Lancez la commande suivante dans le terminal ouvert dans le dossier du projet : `sudo docker-compose up --build`
@@ -23,17 +19,24 @@ Nb : à l'étape 3, ne pas ajouter le `sudo` si vous êtes sous Windows (sauf de
 1. Assurez-vous que Node.js est installé sur votre système. Si ce n'est pas le cas, téléchargez-le depuis [Node.js](https://nodejs.org/).
 2. Installez Cypress via npm : `npm install cypress --save-dev`
 
-## Lancement de Cypress
-Ouvrez Cypress pour exécuter les tests via l'interface utilisateur : `npx cypress open`
+## Lancement des tests avec Cypress (interface graphique)
+1. Depuis le terminal, lancez la commande suivante pour ouvrir l'interface graphique de Cypress : `npx cypress open`
+2. Sélectionnez E2E Testing
+3. Sélectionnez le navigateur souhaité dans l'interface (Chrome, Edge, etc.).
+4. Cliquez sur le fichier de test que vous souhaitez exécuter dans la liste affichée.
+5. Cliquez sur le bouton de lancement pour exécuter le test dans une fenêtre du navigateur.
+6. Consultez les résultats en temps réel dans l'interface graphique.
 
-## Lancement de Cypress en mode headless 
-Pour lancer Cypress en mode headless (sans interface graphique) : `npx cypress run`
+## Générer un Rapport après l'exécution des Tests avec Cypress
+1. Lancez tous les tests en mode headless (sans interface graphique) avec la commande suivante :`npx cypress run`
+2. Les résultats des tests seront affichés directement dans le terminal après l'exécution.
+3. Le rapport sera disponible dans le dossier configuré, généralement cypress/reports.
 
 
 # Structure du projet
 - cypress/e2e/ : Contient les fichiers de tests automatisés.
 - cypress/fixtures/ : Données utilisées pour simuler des scénarios de test.
-- cypress/reports/ : Dossier où les rapports de tests sont générés.
+- cypress/support/ : Dossier où sont centralisées les actions répétitives.
 
 # Tests implémentés
 Les tests couvrent les scénarios suivants :
