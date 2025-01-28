@@ -30,12 +30,12 @@ Nb : à l'étape 3, ne pas ajouter le `sudo` si vous êtes sous Windows (sauf de
 ## Générer un Rapport après l'exécution des Tests avec Cypress
 1. Lancez tous les tests en mode headless (sans interface graphique) avec la commande suivante :`npx cypress run`
 2. Les résultats des tests seront affichés directement dans le terminal après l'exécution.
-3. Le rapport sera disponible dans le dossier configuré, généralement cypress/reports.
 
 
 # Structure du projet
 - cypress/e2e/ : Contient les fichiers de tests automatisés.
 - cypress/fixtures/ : Données utilisées pour simuler des scénarios de test.
+- cypress/screenshots/ : Contient les screenshots des tests en échec.
 - cypress/support/ : Dossier où sont centralisées les actions répétitives.
 
 # Tests implémentés
