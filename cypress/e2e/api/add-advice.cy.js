@@ -36,6 +36,25 @@ describe('API Test: Ajouter un avis', () => {
     });
   });
 
+  it('Devrait échouer si un script XSS est injecté', () => {
+    const xssPayload = {
+      title: 'XSS Test',
+      comment: "<script>alert('XSS')</script>",
+      rating: 5,
+    };
+
+    cy.request({
+      method: 'POST',
+      url: 'http://localhost:8081/reviews',
+      headers: { Authorization: `Bearer ${authToken}` },
+      body: xssPayload,
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.not.eq(200); // Devrait être refusé
+      expect(response.body.error).to.include('Invalid input detected');
+    });
+  });
+
   it('Devrait échouer si le titre dépasse la longueur maximale autorisée', () => {
     const longTitle = 'A'.repeat(101); // Titre de 101 caractères
     const reviewPayload = {
@@ -95,7 +114,6 @@ describe('API Test: Ajouter un avis', () => {
     });
   });
 });
-
 
 
 
